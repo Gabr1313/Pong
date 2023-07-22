@@ -36,8 +36,6 @@ pub fn play_game<'a>(
         let frame_duration = Duration::from_nanos(1_000_000_000u64 / FPS);
         if frame_duration > elapsed_time {
             thread::sleep(Duration::from_nanos(1_000_000_000u64 / FPS) - elapsed_time);
-        } else {
-            eprintln!("Too slow");
         }
         loop_start_time = SystemTime::now();
 
@@ -171,8 +169,6 @@ pub fn paused_game<'a>(
         let frame_duration = Duration::from_nanos(1_000_000_000u64 / FPS);
         if frame_duration > elapsed_time {
             thread::sleep(Duration::from_nanos(1_000_000_000u64 / FPS) - elapsed_time);
-        } else {
-            eprintln!("Too slow");
         }
         loop_start_time = SystemTime::now();
 
