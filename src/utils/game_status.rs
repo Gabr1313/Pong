@@ -3,4 +3,5 @@ pub enum GameStatus {
     End,
     Reset,
     Quit,
+    Pause,
 }

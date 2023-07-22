@@ -8,6 +8,7 @@ pub const POINT_TO_WIN: u32 = 5;
 
 pub const RESET: Keycode = Keycode::R;
 pub const QUIT: Keycode = Keycode::Escape;
+pub const PAUSE: Keycode = Keycode::P;
 
 pub const PADDLE_L_UP: Keycode = Keycode::W;
 pub const PADDLE_L_DOWN: Keycode = Keycode::S;
@@ -38,6 +39,7 @@ pub const DISPLAY_DISTANCE_CENTER: u32 = DISPLAY_COEFFICENT;
 pub const BACKGROUND_COLOR: Color = Color::RGB(0, 0, 0);
 pub const PADDLE_COLOR: Color = Color::RGB(255, 255, 255);
 pub const PADDLE_COLOR_END: Color = Color::RGB(127, 127, 127);
+pub const PADDLE_COLOR_PAUSE: Color = Color::RGB(127, 127, 127);
 pub const MID_LINE_COLOR: Color = Color::RGB(255, 255, 255);
 pub const BALL_COLOR: Color = Color::RGB(255, 255, 0);
 pub const DISPLAY_COLOR: Color = Color::RGB(191, 191, 191);

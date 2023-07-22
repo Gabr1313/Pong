@@ -118,7 +118,7 @@ pub fn main() -> Result<(), Box<dyn Error>> {
         )? {
             GameStatus::Quit => break,
             GameStatus::Reset => continue,
-            GameStatus::End => {}
+            _ => {}
         }
 
         match suspended_game(

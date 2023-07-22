@@ -41,8 +41,21 @@ pub fn play_game<'a>(
         }
         loop_start_time = SystemTime::now();
 
-        if let Some(status) = check_events(events) {
-            return Ok(status);
+        if let Some(mut status) = check_events(events) {
+            if status == GameStatus::Pause {
+                status = paused_game(
+                    canvas,
+                    point_display,
+                    events,
+                    mid_line,
+                    paddle_l,
+                    paddle_r,
+                    ball,
+                )?;
+            }
+            if status != GameStatus::Pause {
+                return Ok(status);
+            }
         }
 
         for key_pressed in events
@@ -114,7 +127,9 @@ pub fn suspended_game<'a>(
         loop_start_time = SystemTime::now();
 
         if let Some(status) = check_events(events) {
-            return Ok(status);
+            if status != GameStatus::Pause {
+                return Ok(status);
+            }
         }
         ball.change_position(None, 0, WINDOW_WIDTH as i32, 0, WINDOW_HEIGHT as i32);
         draw(
@@ -127,6 +142,43 @@ pub fn suspended_game<'a>(
             ball,
             BALL_COLOR,
         )?;
+    }
+}
+
+pub fn paused_game<'a>(
+    canvas: &mut Canvas<Window>,
+    point_display: &'a mut PointDisplay,
+    events: &mut EventPump,
+    mid_line: &DashedLineVert,
+    paddle_l: &mut Paddle,
+    paddle_r: &mut Paddle,
+    ball: &mut Ball,
+) -> Result<GameStatus, Box<dyn Error>> {
+    let mut loop_start_time = SystemTime::now();
+    let mut elapsed_time;
+    draw(
+        canvas,
+        point_display,
+        mid_line,
+        paddle_l,
+        paddle_r,
+        PADDLE_COLOR_PAUSE,
+        ball,
+        BALL_COLOR,
+    )?;
+    loop {
+        elapsed_time = SystemTime::now().duration_since(loop_start_time)?;
+        let frame_duration = Duration::from_nanos(1_000_000_000u64 / FPS);
+        if frame_duration > elapsed_time {
+            thread::sleep(Duration::from_nanos(1_000_000_000u64 / FPS) - elapsed_time);
+        } else {
+            eprintln!("Too slow");
+        }
+        loop_start_time = SystemTime::now();
+
+        if let Some(status) = check_events(events) {
+            return Ok(status);
+        }
     }
 }
 
@@ -165,6 +217,10 @@ fn check_events<'a>(events: &mut EventPump) -> Option<GameStatus> {
                 keycode: Some(RESET),
                 ..
             } => return Some(GameStatus::Reset),
+            Event::KeyDown {
+                keycode: Some(PAUSE),
+                ..
+            } => return Some(GameStatus::Pause),
             _ => {}
         }
     }
