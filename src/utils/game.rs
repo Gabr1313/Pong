@@ -74,6 +74,7 @@ impl<'a> Game<'a> {
         self.draw()?;
         let mut loop_start_time = SystemTime::now();
         let mut elapsed_time;
+        let mut draw = true;
         loop {
             elapsed_time = SystemTime::now().duration_since(loop_start_time)?;
             let frame_duration = Duration::from_nanos(1_000_000_000u64 / self.fps);
@@ -82,20 +83,19 @@ impl<'a> Game<'a> {
             }
             loop_start_time = SystemTime::now();
             self.update_status()?;
+            if draw {
+                match self.status {
+                    GameStatus::Play => self.play()?,
+                    GameStatus::Reset => self.reset()?,
+                    GameStatus::End => self.end()?,
+                    GameStatus::Waiting => self.waiting()?,
+                    GameStatus::Quit => break,
+                }
+            }
             match self.status {
-                GameStatus::Play => {
-                    self.play()?;
-                }
-                GameStatus::Quit => {
-                    break;
-                }
-                GameStatus::Reset => {
-                    self.reset()?;
-                }
-                GameStatus::End => {
-                    self.end()?;
-                }
-                GameStatus::Waiting => self.waiting()?,
+                GameStatus::Waiting => draw = false,
+                GameStatus::Quit => break,
+                _ => draw = true,
             }
         }
         Ok(())
@@ -156,7 +156,7 @@ impl<'a> Game<'a> {
     }
 
     fn draw_pause(&mut self) -> Result<()> {
-        self.draw_color(PADDLE_COLOR_PAUSE, PADDLE_COLOR, BACKGROUND_COLOR)?;
+        self.draw_color(PADDLE_COLOR_PAUSE, BALL_COLOR_PAUSE, BACKGROUND_COLOR)?;
         Ok(())
     }
 

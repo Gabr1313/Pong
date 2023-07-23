@@ -4,7 +4,7 @@ use sdl2::pixels::Color;
 pub const WINDOW_HEIGHT: u32 = 720;
 pub const WINDOW_WIDTH: u32 = WINDOW_HEIGHT * 16 / 9;
 pub const FPS: u64 = 60;
-pub const POINT_TO_WIN: u32 = 1;
+pub const POINT_TO_WIN: u32 = 15;
 
 pub const RESET: Keycode = Keycode::R;
 pub const QUIT: Keycode = Keycode::Escape;
@@ -39,4 +39,5 @@ pub const PADDLE_COLOR_END: Color = Color::RGB(127, 127, 127);
 pub const PADDLE_COLOR_PAUSE: Color = Color::RGB(127, 127, 127);
 pub const MID_LINE_COLOR: Color = Color::RGB(255, 255, 255);
 pub const BALL_COLOR: Color = Color::RGB(255, 255, 0);
+pub const BALL_COLOR_PAUSE: Color = BALL_COLOR;
 pub const DISPLAY_COLOR: Color = Color::RGB(191, 191, 191);

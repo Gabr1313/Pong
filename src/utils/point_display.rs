@@ -45,8 +45,10 @@ impl<'a> PointDisplay<'a> {
         let points = vec!['0'];
         self.point_left = 0;
         self.update_textures(TeamName::Left, &points)?;
+        self.update_rects(TeamName::Left, &points)?;
         self.point_right = 0;
         self.update_textures(TeamName::Right, &points)?;
+        self.update_rects(TeamName::Right, &points)?;
         Ok(())
     }
 
