@@ -4,7 +4,7 @@ use sdl2::pixels::Color;
 pub const WINDOW_HEIGHT: u32 = 720;
 pub const WINDOW_WIDTH: u32 = WINDOW_HEIGHT * 16 / 9;
 pub const FPS: u64 = 60;
-pub const POINT_TO_WIN: u32 = 1;
+pub const POINT_TO_WIN: u32 = 15;
 
 pub const RESET: Keycode = Keycode::R;
 pub const QUIT: Keycode = Keycode::Escape;
@@ -32,9 +32,6 @@ pub const MULTIPLIER: f32 = 2.0;
 pub const SLOW_START: f32 = 1.5;
 
 pub const DISPLAY_COEFFICENT: u32 = (WINDOW_WIDTH + WINDOW_HEIGHT) / 90;
-pub const DISPLAY_WIDTH: u32 = 7 * DISPLAY_COEFFICENT;
-pub const DISPLAY_HEIGTH: u32 = 5 * DISPLAY_COEFFICENT;
-pub const DISPLAY_DISTANCE_CENTER: u32 = DISPLAY_COEFFICENT;
 
 pub const BACKGROUND_COLOR: Color = Color::RGB(0, 0, 0);
 pub const PADDLE_COLOR: Color = Color::RGB(255, 255, 255);

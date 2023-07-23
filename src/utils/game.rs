@@ -127,7 +127,7 @@ impl<'a> Game<'a> {
         );
 
         if let Some(team) = points {
-            self.point_display.incr_point(&mut self.canvas, team)?;
+            self.point_display.incr_point(team)?;
             self.ball.after_goal_rng(
                 (WINDOW_WIDTH - BALL_DIAMETER) as i32 / 2,
                 (WINDOW_HEIGHT - BALL_DIAMETER) as i32 / 2,
@@ -184,7 +184,7 @@ impl<'a> Game<'a> {
     }
 
     fn reset(&mut self) -> Result<(), Box<dyn Error>> {
-        self.point_display.reset(&mut self.canvas)?;
+        self.point_display.reset()?;
         self.paddle_l = Paddle::new(
             PADDLE_L_X,
             (WINDOW_HEIGHT - PADDLE_L_HEIGHT) as i32 / 2,
@@ -233,7 +233,12 @@ impl<'a> Game<'a> {
                 Event::KeyDown {
                     keycode: Some(PAUSE),
                     ..
-                } => return Some(GameStatus::Waiting),
+                } => {
+                    if self.status == GameStatus::Waiting {
+                        return Some(GameStatus::Play);
+                    }
+                    return Some(GameStatus::Waiting) 
+                }
                 _ => {}
             }
         }
