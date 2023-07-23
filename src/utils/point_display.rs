@@ -7,7 +7,7 @@ use sdl2::video::{Window, WindowContext};
 use crate::constants::*;
 use crate::team::TeamName;
 use crate::Result;
-use std::collections::HashMap;
+use std::collections::{HashMap, VecDeque};
 use std::rc::Rc;
 
 const X_PIXEL: u32 = 5;
@@ -18,8 +18,8 @@ pub struct PointDisplay<'a> {
     point_right: u32,
     textures_left: Vec<Rc<Texture<'a>>>,
     textures_right: Vec<Rc<Texture<'a>>>,
-    rects_left: Vec<Rect>,
-    rects_right: Vec<Rect>,
+    rects_left: VecDeque<Rect>,
+    rects_right: VecDeque<Rect>,
     textures_hm: HashMap<char, Rc<Texture<'a>>>,
 }
 
@@ -33,8 +33,8 @@ impl<'a> PointDisplay<'a> {
             point_right: 0,
             textures_left: vec![],
             textures_right: vec![],
-            rects_left: vec![],
-            rects_right: vec![],
+            rects_left: VecDeque::new(),
+            rects_right: VecDeque::new(),
             textures_hm: create_all_texture(canvas, texture_creator)?,
         };
         point_display.reset()?;
@@ -104,35 +104,34 @@ impl<'a> PointDisplay<'a> {
     }
 }
 
-fn overwrite_rects_right(rects: &mut Vec<Rect>, digits: &Vec<char>) -> Result<()> {
-    let len_before = rects.len();
-    rects.resize(digits.len(), Rect::new(0, 0, 0, 0));
-
-    for i in len_before..rects.len() {
-        rects[i] = Rect::new(
+fn overwrite_rects_right(rects: &mut VecDeque<Rect>, digits: &Vec<char>) -> Result<()> {
+    while digits.len() < rects.len() {
+        rects.pop_back();
+    }
+    for i in rects.len()..digits.len() {
+        rects.push_back(Rect::new(
             ((WINDOW_WIDTH + MID_LINE_WIDTH) / 2
                 + DISPLAY_COEFFICENT * (1 + i as u32 * (1 + X_PIXEL))) as i32,
             DISPLAY_COEFFICENT as i32,
             DISPLAY_COEFFICENT * X_PIXEL,
             DISPLAY_COEFFICENT * Y_PIXEL,
-        );
+        ));
     }
     Ok(())
 }
 
-fn overwrite_rects_left(rects: &mut Vec<Rect>, digits: &Vec<char>) -> Result<()> {
-    let len_before = rects.len();
-    rects.resize(digits.len(), Rect::new(0, 0, 0, 0));
-
-    for i in len_before..rects.len() {
-        rects.rotate_right(1);
-        rects[0] = Rect::new(
-            ((WINDOW_WIDTH - MID_LINE_WIDTH) / 2
-                - DISPLAY_COEFFICENT * (i + 1) as u32 * (X_PIXEL + 1)) as i32,
+fn overwrite_rects_left(rects: &mut VecDeque<Rect>, digits: &Vec<char>) -> Result<()> {
+    while digits.len() < rects.len() {
+        rects.pop_front();
+    }
+    for i in rects.len()..digits.len() {
+        rects.push_front(Rect::new(
+            (WINDOW_WIDTH - MID_LINE_WIDTH) as i32 / 2
+                - (DISPLAY_COEFFICENT * (i + 1) as u32 * (X_PIXEL + 1)) as i32,
             DISPLAY_COEFFICENT as i32,
             DISPLAY_COEFFICENT * X_PIXEL,
             DISPLAY_COEFFICENT * Y_PIXEL,
-        );
+        ));
     }
     Ok(())
 }
