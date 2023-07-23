@@ -6,8 +6,8 @@ use sdl2::video::{Window, WindowContext};
 
 use crate::constants::*;
 use crate::team::TeamName;
+use crate::Result;
 use std::collections::HashMap;
-use std::error::Error;
 use std::rc::Rc;
 
 const X_PIXEL: u32 = 5;
@@ -27,7 +27,7 @@ impl<'a> PointDisplay<'a> {
     pub fn new(
         texture_creator: &'a TextureCreator<WindowContext>,
         canvas: &mut Canvas<Window>,
-    ) -> Result<Self, Box<dyn Error>> {
+    ) -> Result<Self> {
         let mut point_display = Self {
             point_left: 0,
             point_right: 0,
@@ -41,7 +41,7 @@ impl<'a> PointDisplay<'a> {
         Ok(point_display)
     }
 
-    pub fn reset(&mut self) -> Result<(), Box<dyn Error>> {
+    pub fn reset(&mut self) -> Result<()> {
         let points = vec!['0'];
         self.point_left = 0;
         self.update_textures(TeamName::Left, &points)?;
@@ -58,7 +58,7 @@ impl<'a> PointDisplay<'a> {
         self.point_right
     }
 
-    pub fn incr_point(&mut self, team: TeamName) -> Result<(), Box<dyn Error>> {
+    pub fn incr_point(&mut self, team: TeamName) -> Result<()> {
         let digits: Vec<_> = match team {
             TeamName::Left => {
                 self.point_left += 1;
@@ -73,7 +73,7 @@ impl<'a> PointDisplay<'a> {
         self.update_rects(team, &digits)
     }
 
-    pub fn draw(&self, canvas: &mut Canvas<Window>) -> Result<(), String> {
+    pub fn draw(&self, canvas: &mut Canvas<Window>) -> Result<()> {
         for (texture, rect) in self.textures_left.iter().zip(self.rects_left.iter()) {
             canvas.copy(texture, None, *rect)?;
         }
@@ -83,11 +83,7 @@ impl<'a> PointDisplay<'a> {
         Ok(())
     }
 
-    fn update_textures(
-        &mut self,
-        team: TeamName,
-        digits: &Vec<char>,
-    ) -> Result<(), Box<dyn Error>> {
+    fn update_textures(&mut self, team: TeamName, digits: &Vec<char>) -> Result<()> {
         match team {
             TeamName::Left => {
                 overwrite_textures(&mut self.textures_left, &self.textures_hm, digits)
@@ -98,7 +94,7 @@ impl<'a> PointDisplay<'a> {
         }
     }
 
-    fn update_rects(&mut self, team: TeamName, digits: &Vec<char>) -> Result<(), Box<dyn Error>> {
+    fn update_rects(&mut self, team: TeamName, digits: &Vec<char>) -> Result<()> {
         match team {
             TeamName::Left => overwrite_rects_left(&mut self.rects_left, digits),
             TeamName::Right => overwrite_rects_right(&mut self.rects_right, digits),
@@ -106,7 +102,7 @@ impl<'a> PointDisplay<'a> {
     }
 }
 
-fn overwrite_rects_right(rects: &mut Vec<Rect>, digits: &Vec<char>) -> Result<(), Box<dyn Error>> {
+fn overwrite_rects_right(rects: &mut Vec<Rect>, digits: &Vec<char>) -> Result<()> {
     let len_before = rects.len();
     rects.resize(digits.len(), Rect::new(0, 0, 0, 0));
 
@@ -122,7 +118,7 @@ fn overwrite_rects_right(rects: &mut Vec<Rect>, digits: &Vec<char>) -> Result<()
     Ok(())
 }
 
-fn overwrite_rects_left(rects: &mut Vec<Rect>, digits: &Vec<char>) -> Result<(), Box<dyn Error>> {
+fn overwrite_rects_left(rects: &mut Vec<Rect>, digits: &Vec<char>) -> Result<()> {
     let len_before = rects.len();
     rects.resize(digits.len(), Rect::new(0, 0, 0, 0));
 
@@ -143,7 +139,7 @@ fn overwrite_textures<'a>(
     textures: &mut Vec<Rc<Texture<'a>>>,
     textures_hm: &HashMap<char, Rc<Texture<'a>>>,
     digits: &Vec<char>,
-) -> Result<(), Box<dyn Error>> {
+) -> Result<()> {
     textures.resize(
         digits.len(),
         Rc::clone(
@@ -165,7 +161,7 @@ fn overwrite_textures<'a>(
 fn create_all_texture<'a>(
     canvas: &mut Canvas<Window>,
     texture_creator: &'a TextureCreator<WindowContext>,
-) -> Result<HashMap<char, Rc<Texture<'a>>>, Box<dyn Error>> {
+) -> Result<HashMap<char, Rc<Texture<'a>>>> {
     let display_char: [(char, u64); 36] = [
         ('0', 0b01110100011001110101110011000101110),
         ('1', 0b01110001000010000100001000011000100),

@@ -3,6 +3,7 @@ use crate::paddle::Paddle;
 use crate::segment::Segmet2D;
 use crate::team::TeamName;
 use crate::virtual_ball::VirtualBall;
+use crate::Result;
 use rand::Rng;
 use sdl2::rect::Rect;
 
@@ -143,7 +144,7 @@ impl Ball {
         x_max: i32,
         y_min: i32,
         y_max: i32,
-    ) -> Option<TeamName> {
+    ) -> Result<Option<TeamName>> {
         let walls = self.build_walls(paddles, x_min, x_max, y_min, y_max);
         let mut step_x = History::new(3, i32::MAX);
         step_x.push(self.vx());
@@ -177,7 +178,7 @@ impl Ball {
             self.move_y_unchecked(vb.y());
 
             if vb.indexes().is_none() {
-                return None;
+                return Ok(None);
             }
             let (id, index) = vb.indexes().expect("It can't be None");
 
@@ -201,16 +202,16 @@ impl Ball {
             step_y.push(vb.step_y());
 
             if id == 0 && index == 0 {
-                return Some(TeamName::Left);
+                return Ok(Some(TeamName::Left));
             }
             if id == 1 && index == 0 {
-                return Some(TeamName::Right);
+                return Ok(Some(TeamName::Right));
             }
 
-            let stuck = step_x.first() == step_x.get_value(2).expect("Index too high")
-                && step_y.first() == step_y.get_value(2).expect("Index too high");
+            let stuck =
+                step_x.first() == step_x.get_value(2)? && step_y.first() == step_y.get_value(2)?;
             if stuck {
-                return None;
+                return Ok(None);
             }
         }
     }

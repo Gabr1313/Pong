@@ -1,8 +1,8 @@
+use crate::Result;
 use sdl2::pixels::Color;
 use sdl2::rect::Rect;
 use sdl2::render::{Canvas, Texture, TextureCreator};
 use sdl2::video::{Window, WindowContext};
-use std::error::Error;
 
 pub struct DashedLineVert<'a> {
     texture: Texture<'a>,
@@ -19,7 +19,7 @@ impl<'a> DashedLineVert<'a> {
         space_height_proportion: u32,
         color: Color,
         background_color: Color,
-    ) -> Result<Self, Box<dyn Error>> {
+    ) -> Result<Self> {
         let mut texture = texture_creator.create_texture_target(
             None,
             1,
@@ -41,7 +41,7 @@ impl<'a> DashedLineVert<'a> {
         Ok(Self { texture, pos })
     }
 
-    pub fn draw(&self, canvas: &mut Canvas<Window>) -> Result<(), String> {
+    pub fn draw(&self, canvas: &mut Canvas<Window>) -> Result<()> {
         canvas.copy(&self.texture, None, self.pos)?;
         Ok(())
     }

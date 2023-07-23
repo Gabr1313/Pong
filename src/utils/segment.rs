@@ -31,18 +31,18 @@ impl Segmet2D {
 
     /// overlapping segments returns None
     pub fn intersect(&self, other: &Self) -> Option<(i32, i32)> {
-        let alpha = self.y1 - self.y2;
-        let beta = self.x2 - self.x1;
-        let alpha_2 = other.y1 - other.y2;
-        let beta_2 = other.x2 - other.x1;
+        let alpha = (self.y1 - self.y2) as i128;
+        let beta = (self.x2 - self.x1) as i128;
+        let alpha_2 = (other.y1 - other.y2) as i128;
+        let beta_2 = (other.x2 - other.x1) as i128;
         let denom = alpha * beta_2 - alpha_2 * beta;
         if denom == 0 {
             return None;
         }
-        let gamma = self.x2 * (self.y1 - self.y2) - self.y2 * (self.x1 - self.x2);
-        let gamma_2 = other.x2 * (other.y1 - other.y2) - other.y2 * (other.x1 - other.x2);
-        let res_x = ((beta_2 * gamma) - (beta * gamma_2)) / denom;
-        let res_y = ((alpha * gamma_2) - (alpha_2 * gamma)) / denom;
+        let gamma = (self.x2 * (self.y1 - self.y2) - self.y2 * (self.x1 - self.x2)) as i128;
+        let gamma_2 = (other.x2 * (other.y1 - other.y2) - other.y2 * (other.x1 - other.x2)) as i128;
+        let res_x = (((beta_2 * gamma) - (beta * gamma_2)) / denom) as i32;
+        let res_y = (((alpha * gamma_2) - (alpha_2 * gamma)) / denom) as i32;
 
         if lesseq_lesseq(self.x1, res_x, self.x2)
             && lesseq_lesseq(other.x1, res_x, other.x2)

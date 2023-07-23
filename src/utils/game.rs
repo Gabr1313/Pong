@@ -9,11 +9,12 @@ use std::time::{Duration, SystemTime};
 
 use crate::ball::Ball;
 use crate::constants::*;
+use crate::error::GameInfiniteLoop;
 use crate::game_status::GameStatus;
 use crate::mid_line::DashedLineVert;
 use crate::paddle::Paddle;
 use crate::point_display::PointDisplay;
-use std::error::Error;
+use crate::Result;
 
 pub struct Game<'a> {
     canvas: Canvas<Window>,
@@ -25,6 +26,7 @@ pub struct Game<'a> {
     ball: Ball,
     fps: u64,
     status: GameStatus,
+    prev_status: GameStatus,
 }
 
 impl<'a> Game<'a> {
@@ -65,9 +67,10 @@ impl<'a> Game<'a> {
             ),
             fps,
             status: GameStatus::Waiting,
+            prev_status: GameStatus::Play,
         }
     }
-    pub fn spawn(&mut self) -> Result<(), Box<dyn Error>> {
+    pub fn spawn(&mut self) -> Result<()> {
         self.draw()?;
         let mut loop_start_time = SystemTime::now();
         let mut elapsed_time;
@@ -78,7 +81,7 @@ impl<'a> Game<'a> {
                 thread::sleep(Duration::from_nanos(1_000_000_000u64 / self.fps) - elapsed_time);
             }
             loop_start_time = SystemTime::now();
-            self.update_status();
+            self.update_status()?;
             match self.status {
                 GameStatus::Play => {
                     self.play()?;
@@ -98,7 +101,7 @@ impl<'a> Game<'a> {
         Ok(())
     }
 
-    fn play(&mut self) -> Result<(), Box<dyn Error>> {
+    fn play(&mut self) -> Result<()> {
         for key_pressed in self
             .events
             .keyboard_state()
@@ -126,7 +129,7 @@ impl<'a> Game<'a> {
             WINDOW_HEIGHT as i32,
         );
 
-        if let Some(team) = points {
+        if let Some(team) = points? {
             self.point_display.incr_point(team)?;
             self.ball.after_goal_rng(
                 (WINDOW_WIDTH - BALL_DIAMETER) as i32 / 2,
@@ -136,18 +139,23 @@ impl<'a> Game<'a> {
         }
 
         if self.point_display.left() == POINT_TO_WIN || self.point_display.right() == POINT_TO_WIN {
-            self.status = GameStatus::End;
+            self.change_status(GameStatus::End);
         }
         self.draw()?;
         Ok(())
     }
 
-    fn draw(&mut self) -> Result<(), Box<dyn Error>> {
+    fn change_status(&mut self, status: GameStatus) {
+        self.prev_status = self.status;
+        self.status = status;
+    }
+
+    fn draw(&mut self) -> Result<()> {
         self.draw_color(PADDLE_COLOR, BALL_COLOR, BACKGROUND_COLOR)?;
         Ok(())
     }
 
-    fn draw_pause(&mut self) -> Result<(), Box<dyn Error>> {
+    fn draw_pause(&mut self) -> Result<()> {
         self.draw_color(PADDLE_COLOR_PAUSE, PADDLE_COLOR, BACKGROUND_COLOR)?;
         Ok(())
     }
@@ -157,7 +165,7 @@ impl<'a> Game<'a> {
         paddle_color: Color,
         ball_color: Color,
         background_color: Color,
-    ) -> Result<(), Box<dyn Error>> {
+    ) -> Result<()> {
         self.canvas.clear();
         self.point_display.draw(&mut self.canvas)?;
         self.mid_line.draw(&mut self.canvas)?;
@@ -171,19 +179,19 @@ impl<'a> Game<'a> {
         Ok(())
     }
 
-    fn end(&mut self) -> Result<(), Box<dyn Error>> {
+    fn end(&mut self) -> Result<()> {
         self.ball
-            .change_position(None, 0, WINDOW_WIDTH as i32, 0, WINDOW_HEIGHT as i32);
+            .change_position(None, 0, WINDOW_WIDTH as i32, 0, WINDOW_HEIGHT as i32)?;
         self.draw_pause()?;
         Ok(())
     }
 
-    fn waiting(&mut self) -> Result<(), Box<dyn Error>> {
+    fn waiting(&mut self) -> Result<()> {
         self.draw_pause()?;
         Ok(())
     }
 
-    fn reset(&mut self) -> Result<(), Box<dyn Error>> {
+    fn reset(&mut self) -> Result<()> {
         self.point_display.reset()?;
         self.paddle_l = Paddle::new(
             PADDLE_L_X,
@@ -208,40 +216,44 @@ impl<'a> Game<'a> {
             MULTIPLIER,
             SLOW_START,
         );
-        self.status = GameStatus::Play;
+        self.change_status(GameStatus::Play);
         Ok(())
     }
 
-    fn update_status(&mut self) {
-        if let Some(status) = self.check_events() {
-            self.status = status;
+    fn update_status(&mut self) -> Result<()> {
+        if let Some(status) = self.check_events()? {
+            self.change_status(status);
         }
+        Ok(())
     }
 
-    fn check_events(&mut self) -> Option<GameStatus> {
+    fn check_events(&mut self) -> Result<Option<GameStatus>> {
         for event in self.events.poll_iter() {
             match event {
                 Event::Quit { .. }
                 | Event::KeyDown {
                     keycode: Some(QUIT),
                     ..
-                } => return Some(GameStatus::Quit),
+                } => return Ok(Some(GameStatus::Quit)),
                 Event::KeyDown {
                     keycode: Some(RESET),
                     ..
-                } => return Some(GameStatus::Reset),
+                } => return Ok(Some(GameStatus::Reset)),
                 Event::KeyDown {
                     keycode: Some(PAUSE),
                     ..
                 } => {
                     if self.status == GameStatus::Waiting {
-                        return Some(GameStatus::Play);
+                        if self.prev_status == GameStatus::Waiting {
+                            return Err(Box::new(GameInfiniteLoop));
+                        }
+                        return Ok(Some(self.prev_status));
                     }
-                    return Some(GameStatus::Waiting) 
+                    return Ok(Some(GameStatus::Waiting));
                 }
                 _ => {}
             }
         }
-        None
+        Ok(None)
     }
 }

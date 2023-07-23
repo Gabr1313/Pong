@@ -2,10 +2,10 @@ use pong::constants::*;
 use pong::game::Game;
 use pong::mid_line::DashedLineVert;
 use pong::point_display::PointDisplay;
+use pong::Result;
 use sdl2::rect::Rect;
-use std::error::Error;
 
-pub fn main() -> Result<(), Box<dyn Error>> {
+pub fn main() -> Result<()> {
     let sdl_context = sdl2::init()?;
     let video_subsystem = sdl_context.video()?;
 
