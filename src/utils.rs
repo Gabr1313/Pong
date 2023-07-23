@@ -7,3 +7,4 @@ pub mod virtual_ball;
 pub mod point_display;
 pub mod mid_line;
 pub mod game_status;
+pub mod game;

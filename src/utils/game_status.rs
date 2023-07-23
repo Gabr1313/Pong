@@ -1,7 +1,8 @@
-#[derive(PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum GameStatus {
     End,
-    Reset,
+    Play,
     Quit,
-    Pause,
+    Waiting,
+    Reset,
 }

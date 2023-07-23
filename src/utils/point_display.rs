@@ -45,6 +45,14 @@ impl<'a> PointDisplay<'a> {
         Ok(s)
     }
 
+    pub fn reset(&mut self, canvas: &mut Canvas<Window>) -> Result<(), Box<dyn Error>> {
+        self.point_left = 0;
+        self.point_right = 0;
+        create_texture(&mut self.texture_left, self.point_left, canvas)?;
+        create_texture(&mut self.texture_right, self.point_right, canvas)?;
+        Ok(())
+    }
+
     pub fn left(&mut self) -> u32 {
         self.point_left
     }
