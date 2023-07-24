@@ -7,6 +7,7 @@ use crate::Result;
 use rand::Rng;
 use sdl2::rect::Rect;
 
+#[derive(Debug)]
 pub struct Ball {
     rect: Rect,
     vx: i32,
@@ -33,7 +34,7 @@ impl Ball {
         } else {
             (-vx as f32 / slow_start) as i32
         };
-        let vy_rng = ((rand::thread_rng().gen_range(-1000..=1000) * vy) as f32 / 1000.0) as i32;
+        let vy_rng = ((rand::thread_rng().gen_range(-1000..=1000) * vy) as f32 / 1000.0) as i32; 
         let rect = Rect::new(x, y, diameter, diameter);
         Self {
             rect,
@@ -154,18 +155,18 @@ impl Ball {
         loop {
             let vb_1 = if step_x.first() >= 0 {
                 let id = 0;
-                self.virtual_position_move_right(id, &walls[id], step_x.first(), step_y.first())
+                self.virtual_wall_right(id, &walls[id], step_x.first(), step_y.first())
             } else {
                 let id = 1;
-                self.virtual_position_move_left(id, &walls[id], step_x.first(), step_y.first())
+                self.virtual_wall_left(id, &walls[id], step_x.first(), step_y.first())
             };
 
             let vb_2 = if step_y.first() >= 0 {
                 let id = 2;
-                self.virtual_position_move_down(id, &walls[id], step_x.first(), step_y.first())
+                self.virtual_wall_down(id, &walls[id], step_x.first(), step_y.first())
             } else {
                 let id = 3;
-                self.virtual_position_move_up(id, &walls[id], step_x.first(), step_y.first())
+                self.virtual_wall_up(id, &walls[id], step_x.first(), step_y.first())
             };
 
             let step_left_1 = vb_1.step_x().abs() + vb_1.step_y().abs();
@@ -216,7 +217,7 @@ impl Ball {
         }
     }
 
-    fn virtual_position_move_right(
+    fn virtual_wall_right(
         &self,
         id: usize,
         walls_right: &[Segmet2D],
@@ -241,32 +242,25 @@ impl Ball {
                 vb = VirtualBall::new(
                     x - self.width(),
                     y,
-                    (x - self.width()) - vb.x(),
-                    vb.y() - y,
-                    if (x - self.width()) - vb.x() != 0 {
-                        Some((id, i))
-                    } else {
-                        None
-                    },
+                    (x - self.width()) - (self.x() + step_x),
+                    (self.y() + step_y) - y,
+                    Some((id, i)),
                 );
             } else if let Some((x, y)) = movement_bottom_right.intersect(&walls_right[i]) {
                 vb = VirtualBall::new(
                     x - self.width(),
                     y - self.height(),
-                    x - self.width() - vb.x(),
-                    vb.y() - (y - self.height()),
-                    if x - self.width() - vb.x() != 0 {
-                        Some((id, i))
-                    } else {
-                        None
-                    },
+                    x - self.width() - (self.x() + step_x),
+                    (self.y() + step_y) - (y - self.height()),
+                    Some((id, i)),
                 );
             }
         }
         vb
     }
+    
 
-    fn virtual_position_move_left(
+    fn virtual_wall_left(
         &self,
         id: usize,
         walls_left: &[Segmet2D],
@@ -283,27 +277,21 @@ impl Ball {
                 vb.y() + self.height(),
             );
             if let Some((x, y)) = movement_top_left.intersect(&walls_left[i]) {
-                vb = VirtualBall::new(
-                    x,
-                    y,
-                    x - vb.x(),
-                    vb.y() - y,
-                    if x - vb.x() != 0 { Some((id, i)) } else { None },
-                );
+                vb = VirtualBall::new(x, y, x - (self.x() + step_x), (self.y() + step_y) - y, Some((id, i)));
             } else if let Some((x, y)) = movement_bottom_left.intersect(&walls_left[i]) {
                 vb = VirtualBall::new(
                     x,
                     y - self.height(),
-                    x - vb.x(),
-                    vb.y() - (y - self.height()),
-                    if x - vb.x() != 0 { Some((id, i)) } else { None },
+                    x - (self.x() + step_x),
+                    (self.y() + step_y) - (y - self.height()),
+                    Some((id, i)),
                 );
             }
         }
         vb
     }
 
-    fn virtual_position_move_up(
+    fn virtual_wall_up(
         &self,
         id: usize,
         walls_up: &[Segmet2D],
@@ -320,27 +308,21 @@ impl Ball {
                 vb.y(),
             );
             if let Some((x, y)) = movement_top_left.intersect(&walls_up[i]) {
-                vb = VirtualBall::new(
-                    x,
-                    y,
-                    vb.x() - x,
-                    y - vb.y(),
-                    if y - vb.y() != 0 { Some((id, i)) } else { None },
-                );
+                vb = VirtualBall::new(x, y, (self.x() + step_x) - x, y - (self.y() + step_y), Some((id, i)));
             } else if let Some((x, y)) = movement_top_right.intersect(&walls_up[i]) {
                 vb = VirtualBall::new(
                     x - self.width(),
                     y,
-                    vb.x() - (x - self.width()),
-                    y - vb.y(),
-                    if y - vb.y() != 0 { Some((id, i)) } else { None },
+                    (self.x() + step_x) - (x - self.width()),
+                    y - (self.y() + step_y),
+                    Some((id, i)),
                 );
             }
         }
         vb
     }
 
-    fn virtual_position_move_down(
+    fn virtual_wall_down(
         &self,
         id: usize,
         walls_down: &[Segmet2D],
@@ -365,25 +347,17 @@ impl Ball {
                 vb = VirtualBall::new(
                     x,
                     y - self.height(),
-                    vb.x() - x,
-                    (y - self.height()) - vb.y(),
-                    if (y - self.height()) - vb.y() != 0 {
-                        Some((id, i))
-                    } else {
-                        None
-                    },
+                    (self.x() + step_x) - x,
+                    (y - self.height()) - (self.y() + step_y),
+                    Some((id, i)),
                 );
             } else if let Some((x, y)) = movement_bottom_right.intersect(&walls_down[i]) {
                 vb = VirtualBall::new(
                     x - self.width(),
                     y - self.height(),
-                    vb.x() - (x - self.width()),
-                    (y - self.height()) - vb.y(),
-                    if (y - self.height()) - vb.y() != 0 {
-                        Some((id, i))
-                    } else {
-                        None
-                    },
+                    (self.x() + step_x) - (x - self.width()),
+                    (y - self.height()) - (self.y() + step_y),
+                    Some((id, i)),
                 );
             }
         }

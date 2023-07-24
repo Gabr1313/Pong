@@ -1,6 +1,7 @@
 use crate::error::IndexTooHigh;
 use crate::Result;
 
+#[derive(Debug)]
 pub struct History<T: Copy> {
     v: Vec<T>,
     index: usize,

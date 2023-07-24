@@ -1,3 +1,4 @@
+#[derive(Debug)]
 pub struct VirtualBall {
     x: i32,
     y: i32,

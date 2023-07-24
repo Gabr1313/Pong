@@ -105,8 +105,8 @@ impl<'a> PointDisplay<'a> {
 }
 
 fn overwrite_rects_right(rects: &mut VecDeque<Rect>, digits: &Vec<char>) -> Result<()> {
-    while digits.len() < rects.len() {
-        rects.pop_back();
+    if rects.len() > digits.len() {
+        rects.drain(rects.len() - digits.len()..);
     }
     for i in rects.len()..digits.len() {
         rects.push_back(Rect::new(
@@ -121,8 +121,8 @@ fn overwrite_rects_right(rects: &mut VecDeque<Rect>, digits: &Vec<char>) -> Resu
 }
 
 fn overwrite_rects_left(rects: &mut VecDeque<Rect>, digits: &Vec<char>) -> Result<()> {
-    while digits.len() < rects.len() {
-        rects.pop_front();
+    if rects.len() > digits.len() {
+        rects.drain(..digits.len());
     }
     for i in rects.len()..digits.len() {
         rects.push_front(Rect::new(

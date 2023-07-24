@@ -1,3 +1,4 @@
+#[derive(Debug)]
 pub struct Segmet1D {
     x1: i32,
     x2: i32,

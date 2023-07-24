@@ -2,6 +2,7 @@ use crate::ball::Ball;
 use crate::segment::Segmet1D;
 use sdl2::rect::Rect;
 
+#[derive(Debug)]
 pub struct Paddle {
     rect: Rect,
     step: u32,
