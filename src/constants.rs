@@ -35,9 +35,8 @@ pub const DISPLAY_COEFFICENT: u32 = (WINDOW_WIDTH + WINDOW_HEIGHT) / 90;
 
 pub const BACKGROUND_COLOR: Color = Color::RGB(0, 0, 0);
 pub const PADDLE_COLOR: Color = Color::RGB(255, 255, 255);
-pub const PADDLE_COLOR_END: Color = Color::RGB(127, 127, 127);
 pub const PADDLE_COLOR_PAUSE: Color = Color::RGB(127, 127, 127);
 pub const MID_LINE_COLOR: Color = Color::RGB(255, 255, 255);
 pub const BALL_COLOR: Color = Color::RGB(255, 255, 0);
-pub const BALL_COLOR_PAUSE: Color = BALL_COLOR;
+pub const BALL_COLOR_PAUSE: Color = Color::RGB(127, 127, 0);
 pub const DISPLAY_COLOR: Color = Color::RGB(191, 191, 191);
