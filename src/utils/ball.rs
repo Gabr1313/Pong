@@ -34,7 +34,7 @@ impl Ball {
         } else {
             (-vx as f32 / slow_start) as i32
         };
-        let vy_rng = ((rand::thread_rng().gen_range(-1000..=1000) * vy) as f32 / 1000.0) as i32; 
+        let vy_rng = ((rand::thread_rng().gen_range(-1000..=1000) * vy) as f32 / 1000.0) as i32;
         let rect = Rect::new(x, y, diameter, diameter);
         Self {
             rect,
@@ -244,7 +244,11 @@ impl Ball {
                     y,
                     (x - self.width()) - (self.x() + step_x),
                     (self.y() + step_y) - y,
-                    Some((id, i)),
+                    if (x - self.width()) - vb.x() != 0 {
+                        Some((id, i))
+                    } else {
+                        None
+                    },
                 );
             } else if let Some((x, y)) = movement_bottom_right.intersect(&walls_right[i]) {
                 vb = VirtualBall::new(
@@ -252,13 +256,16 @@ impl Ball {
                     y - self.height(),
                     x - self.width() - (self.x() + step_x),
                     (self.y() + step_y) - (y - self.height()),
-                    Some((id, i)),
+                    if (x - self.width()) - vb.x() != 0 {
+                        Some((id, i))
+                    } else {
+                        None
+                    },
                 );
             }
         }
         vb
     }
-    
 
     fn virtual_wall_left(
         &self,
@@ -277,14 +284,20 @@ impl Ball {
                 vb.y() + self.height(),
             );
             if let Some((x, y)) = movement_top_left.intersect(&walls_left[i]) {
-                vb = VirtualBall::new(x, y, x - (self.x() + step_x), (self.y() + step_y) - y, Some((id, i)));
+                vb = VirtualBall::new(
+                    x,
+                    y,
+                    x - (self.x() + step_x),
+                    (self.y() + step_y) - y,
+                    if x - vb.x() != 0 { Some((id, i)) } else { None },
+                );
             } else if let Some((x, y)) = movement_bottom_left.intersect(&walls_left[i]) {
                 vb = VirtualBall::new(
                     x,
                     y - self.height(),
                     x - (self.x() + step_x),
                     (self.y() + step_y) - (y - self.height()),
-                    Some((id, i)),
+                    if x - vb.x() != 0 { Some((id, i)) } else { None },
                 );
             }
         }
@@ -308,14 +321,20 @@ impl Ball {
                 vb.y(),
             );
             if let Some((x, y)) = movement_top_left.intersect(&walls_up[i]) {
-                vb = VirtualBall::new(x, y, (self.x() + step_x) - x, y - (self.y() + step_y), Some((id, i)));
+                vb = VirtualBall::new(
+                    x,
+                    y,
+                    (self.x() + step_x) - x,
+                    y - (self.y() + step_y),
+                    if y - vb.y() != 0 { Some((id, i)) } else { None },
+                );
             } else if let Some((x, y)) = movement_top_right.intersect(&walls_up[i]) {
                 vb = VirtualBall::new(
                     x - self.width(),
                     y,
                     (self.x() + step_x) - (x - self.width()),
                     y - (self.y() + step_y),
-                    Some((id, i)),
+                    if y - vb.y() != 0 { Some((id, i)) } else { None },
                 );
             }
         }
@@ -349,7 +368,11 @@ impl Ball {
                     y - self.height(),
                     (self.x() + step_x) - x,
                     (y - self.height()) - (self.y() + step_y),
-                    Some((id, i)),
+                    if (y - self.height()) - vb.y() != 0 {
+                        Some((id, i))
+                    } else {
+                        None
+                    },
                 );
             } else if let Some((x, y)) = movement_bottom_right.intersect(&walls_down[i]) {
                 vb = VirtualBall::new(
@@ -357,7 +380,11 @@ impl Ball {
                     y - self.height(),
                     (self.x() + step_x) - (x - self.width()),
                     (y - self.height()) - (self.y() + step_y),
-                    Some((id, i)),
+                    if (y - self.height()) - vb.y() != 0 {
+                        Some((id, i))
+                    } else {
+                        None
+                    },
                 );
             }
         }
