@@ -4,7 +4,7 @@ use sdl2::pixels::Color;
 pub const WINDOW_HEIGHT: u32 = 720;
 pub const WINDOW_WIDTH: u32 = WINDOW_HEIGHT * 16 / 9;
 pub const FPS: u64 = 60;
-pub const POINT_TO_WIN: u32 = 15;
+pub const POINT_TO_WIN: u32 = 10;
 
 pub const RESET: Keycode = Keycode::R;
 pub const QUIT: Keycode = Keycode::Escape;
@@ -12,8 +12,9 @@ pub const PAUSE: Keycode = Keycode::P;
 
 pub const PADDLE_L_UP: Keycode = Keycode::W;
 pub const PADDLE_L_DOWN: Keycode = Keycode::S;
-pub const PADDLE_R_UP: Keycode = Keycode::Up;
-pub const PADDLE_R_DOWN: Keycode = Keycode::Down;
+pub const PADDLE_R_UP: Keycode = Keycode::K;
+pub const PADDLE_R_DOWN: Keycode = Keycode::J;
+
 pub const PADDLE_L_X: i32 = (WINDOW_WIDTH / 16 - PADDLE_WIDTH / 2) as i32;
 pub const PADDLE_R_X: i32 = ((WINDOW_WIDTH - WINDOW_WIDTH / 16) - PADDLE_WIDTH / 2) as i32;
 pub const PADDLE_L_HEIGHT: u32 = WINDOW_HEIGHT / 8;

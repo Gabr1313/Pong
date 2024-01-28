@@ -66,7 +66,7 @@ impl<'a> Game<'a> {
                 SLOW_START,
             ),
             fps,
-            status: GameStatus::Waiting,
+            status: GameStatus::Neutral,
             prev_status: GameStatus::Play,
         }
     }
@@ -87,7 +87,7 @@ impl<'a> Game<'a> {
                 match self.status {
                     GameStatus::Play => self.play()?,
                     GameStatus::Reset => self.reset()?,
-                    GameStatus::End => self.end()?,
+                    GameStatus::Neutral => self.neutral()?,
                     GameStatus::Waiting => self.waiting()?,
                     GameStatus::Quit => break,
                 }
@@ -139,7 +139,7 @@ impl<'a> Game<'a> {
         }
 
         if self.point_display.left() == POINT_TO_WIN || self.point_display.right() == POINT_TO_WIN {
-            self.change_status(GameStatus::End);
+            self.change_status(GameStatus::Neutral);
         }
         self.draw()?;
         Ok(())
@@ -179,7 +179,7 @@ impl<'a> Game<'a> {
         Ok(())
     }
 
-    fn end(&mut self) -> Result<()> {
+    fn neutral(&mut self) -> Result<()> {
         self.ball
             .change_position(None, 0, WINDOW_WIDTH as i32, 0, WINDOW_HEIGHT as i32)?;
         self.draw_pause()?;

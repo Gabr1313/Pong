@@ -1,6 +1,6 @@
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum GameStatus {
-    End,
+    Neutral,
     Play,
     Quit,
     Waiting,
